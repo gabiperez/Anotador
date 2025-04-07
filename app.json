@@ -5,6 +5,12 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b4af8e50-e7ef-4d52-bc75-d5e6d6c50888"
+      }
+    },
+    "owner": "gusanpe"
   }
 }
