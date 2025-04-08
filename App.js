@@ -3,7 +3,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, Button, StyleSheet } from "react-native";
-import Catan from "/screens/Catan";
+import Catan from "./screens/Catan";
 import Carioca from "./screens/Carioca";
 
 const Stack = createNativeStackNavigator();
