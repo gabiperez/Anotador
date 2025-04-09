@@ -1,23 +1,24 @@
+// screens/Carioca.js
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AddPlayers from "/AddPlayers"; // ya no está en /Carioca
+import GameScreen from "./Carioca/GameScreen";
 
-const Carioca = () => {
+const Stack = createNativeStackNavigator();
+
+export default function Carioca() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Anotador de Carioca</Text>
-    </View>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Setup"
+        component={AddPlayers}
+        options={{ title: "Jugadores" }}
+      />
+      <Stack.Screen
+        name="Game"
+        component={GameScreen}
+        options={{ title: "Partida" }}
+      />
+    </Stack.Navigator>
   );
-};
-
-export default Carioca;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-  },
-});
+}

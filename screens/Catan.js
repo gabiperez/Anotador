@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 
 const Catan = () => {
@@ -86,11 +87,13 @@ const Catan = () => {
           <View style={styles.botonera}>
             {numeros.map((numero) => (
               <View key={numero} style={styles.botonContenedor}>
-                <Button
-                  title={numero.toString()}
+                <TouchableOpacity
+                  style={styles.botonRedondo}
                   onPress={() => incrementar(numero)}
-                />
-                <Text style={styles.contador}>Veces: {conteo[numero]}</Text>
+                >
+                  <Text style={styles.numeroTexto}>{numero}</Text>
+                </TouchableOpacity>
+                <Text style={styles.contador}>{conteo[numero]}</Text>
               </View>
             ))}
           </View>
@@ -156,12 +159,31 @@ const styles = StyleSheet.create({
   botonera: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   botonContenedor: {
-    width: "30%",
-    marginVertical: 10,
+    width: 80,
+    height: 100,
+    margin: 10,
     alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+
+  botonRedondo: {
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    marginVertical: 15,
+    backgroundColor: "#4682B4",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  numeroTexto: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
   },
   contador: {
     marginTop: 5,
