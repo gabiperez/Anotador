@@ -1,4 +1,3 @@
-// utils/storage.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PLAYERS_KEY = "@saved_players";
@@ -23,5 +22,16 @@ export const getPlayers = async () => {
   } catch (error) {
     console.error("Error al cargar jugadores:", error);
     return [];
+  }
+};
+
+export const removePlayer = async (name) => {
+  try {
+    const data = await AsyncStorage.getItem(PLAYERS_KEY);
+    let players = data ? JSON.parse(data) : [];
+    players = players.filter((p) => p !== name);
+    await AsyncStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+  } catch (error) {
+    console.error("Error al eliminar jugador:", error);
   }
 };

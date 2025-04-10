@@ -33,4 +33,19 @@ export default StyleSheet.create({
     fontSize: 16,
     color: "blue",
   },
+  playerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+  },
+
+  deleteButton: {
+    fontSize: 18,
+    color: "red",
+    paddingHorizontal: 8,
+  },
 });

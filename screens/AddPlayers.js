@@ -6,9 +6,10 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import styles from "./Carioca/styles";
-import { savePlayer, getPlayers } from "../../utils/storage";
+import { savePlayer, getPlayers, removePlayer } from "../utils/storage";
 
 export default function AddPlayers({ navigation }) {
   const [name, setName] = useState("");
@@ -25,30 +26,74 @@ export default function AddPlayers({ navigation }) {
   };
 
   const addPlayer = async (playerName) => {
-    if (!playerName.trim()) return;
-    const updated = [...players, playerName.trim()];
+    const nombre = playerName.trim();
+    if (!nombre) return;
+
+    if (players.includes(nombre)) {
+      Alert.alert("Jugador ya agregado", `"${nombre}" ya está en la lista.`);
+      return;
+    }
+
+    const updated = [...players, nombre];
     setPlayers(updated);
-    await savePlayer(playerName.trim());
+    await savePlayer(nombre);
     setName("");
     loadSavedPlayers();
   };
 
+  const eliminarJugador = (nombre) => {
+    setPlayers(players.filter((p) => p !== nombre));
+  };
+
+  const eliminarJugadorGuardado = (nombre) => {
+    Alert.alert(
+      "Eliminar jugador guardado",
+      `¿Seguro que quieres eliminar a "${nombre}" de los guardados?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            await removePlayer(nombre);
+            loadSavedPlayers();
+          },
+        },
+      ]
+    );
+  };
+
+  const renderJugador = (item, esGuardado = false) => (
+    <View style={styles.playerRow}>
+      <Text style={styles.player}>{item}</Text>
+      <TouchableOpacity
+        onPress={() =>
+          esGuardado ? eliminarJugadorGuardado(item) : eliminarJugador(item)
+        }
+      >
+        <Text style={styles.deleteButton}>❌</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Agregar Jugadores</Text>
+
       <TextInput
         placeholder="Nombre del jugador"
         style={styles.input}
         value={name}
         onChangeText={setName}
       />
+
       <Button title="Agregar" onPress={() => addPlayer(name)} />
 
       <Text style={styles.subtitle}>Jugadores actuales:</Text>
       <FlatList
         data={players}
         keyExtractor={(item, index) => item + index}
-        renderItem={({ item }) => <Text style={styles.player}>{item}</Text>}
+        renderItem={({ item }) => renderJugador(item)}
       />
 
       <Text style={styles.subtitle}>Jugadores guardados:</Text>
@@ -57,7 +102,7 @@ export default function AddPlayers({ navigation }) {
         keyExtractor={(item, index) => item + index}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => addPlayer(item)}>
-            <Text style={styles.savedPlayer}>{item}</Text>
+            {renderJugador(item, true)}
           </TouchableOpacity>
         )}
       />

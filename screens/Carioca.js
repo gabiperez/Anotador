@@ -1,8 +1,8 @@
 // screens/Carioca.js
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AddPlayers from "/AddPlayers"; // ya no está en /Carioca
-import GameScreen from "./Carioca/GameScreen";
+import AddPlayers from "./AddPlayers"; // ya no está en /Carioca
+import GameScreen from "./Carioca/GameScreem";
 
 const Stack = createNativeStackNavigator();
 

@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
-  Button,
   ScrollView,
   Alert,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import {
+  Text as PaperText,
+  Button as PaperButton,
+  Title,
+  IconButton,
+  Provider as PaperProvider,
+} from "react-native-paper";
 
 const Catan = () => {
-  const numeros = Array.from({ length: 11 }, (_, i) => i + 2); // [2, 3, ..., 12]
-
+  const numeros = Array.from({ length: 11 }, (_, i) => i + 2);
   const inicializarConteo = () =>
     numeros.reduce((acc, n) => ({ ...acc, [n]: 0 }), {});
 
@@ -38,11 +42,11 @@ const Catan = () => {
     }));
   };
 
-  const reiniciar = () => {
-    Alert.alert("¿Reiniciar partida?", "Se guardará en el historial.", [
+  const Finalizar = () => {
+    Alert.alert("¿Finalizar partida?", "Se guardará en el historial.", [
       { text: "Cancelar", style: "cancel" },
       {
-        text: "Reiniciar",
+        text: "Finalizar",
         onPress: () => {
           setHistorial([...historial, { datos: conteo, tiempo }]);
           setConteo(inicializarConteo());
@@ -65,24 +69,26 @@ const Catan = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titulo}>🎲 Catan - Contador de dados</Text>
+      <Title style={styles.titulo}>🎲 Catan - Contador de dados</Title>
 
       {!partidaActiva && (
-        <Button
-          title="🎬 Empezar partida"
-          color="green"
+        <PaperButton
+          mode="contained"
+          buttonColor="green"
           onPress={() => {
             setInicio(Date.now());
             setPartidaActiva(true);
           }}
-        />
+        >
+          🎬 Empezar partida
+        </PaperButton>
       )}
 
       {partidaActiva && (
         <>
-          <Text style={styles.tiempo}>
+          <PaperText style={styles.tiempo}>
             ⏱️ Tiempo: {formatearTiempo(tiempo)}
-          </Text>
+          </PaperText>
 
           <View style={styles.botonera}>
             {numeros.map((numero) => (
@@ -91,46 +97,54 @@ const Catan = () => {
                   style={styles.botonRedondo}
                   onPress={() => incrementar(numero)}
                 >
-                  <Text style={styles.numeroTexto}>{numero}</Text>
+                  <PaperText style={styles.numeroTexto}>{numero}</PaperText>
                 </TouchableOpacity>
-                <Text style={styles.contador}>{conteo[numero]}</Text>
+                <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
               </View>
             ))}
           </View>
 
-          <Text style={styles.subtitulo}>📊 Estadísticas actuales</Text>
+          <PaperText style={styles.subtitulo}>
+            📊 Estadísticas actuales
+          </PaperText>
           <View style={styles.barrasContainer}>
             {Object.entries(conteo).map(([numero, cantidad]) => (
-              <View key={numero} style={styles.barraFila}>
-                <Text style={{ width: 30 }}>{numero}</Text>
-                <View style={[styles.barra, { width: cantidad * 10 }]} />
-                <Text style={styles.cantidadTexto}>{cantidad}</Text>
+              <View key={numero} style={styles.columna}>
+                <PaperText style={styles.cantidadTexto}>{cantidad}</PaperText>
+                <View
+                  style={[styles.barraVertical, { height: cantidad * 10 }]}
+                />
+                <PaperText style={styles.numeroTexto}>{numero}</PaperText>
               </View>
             ))}
           </View>
 
           <View style={{ marginTop: 20 }}>
-            <Button
-              title="🔄 Reiniciar partida"
-              onPress={reiniciar}
-              color="#FF6347"
-            />
+            <PaperButton
+              mode="contained"
+              buttonColor="#FF6347"
+              onPress={Finalizar}
+            >
+              🔄 Finalizar partida
+            </PaperButton>
           </View>
         </>
       )}
 
       {historial.length > 0 && (
         <>
-          <Text style={styles.subtitulo}>📁 Historial de partidas</Text>
+          <PaperText style={styles.subtitulo}>
+            📁 Historial de partidas
+          </PaperText>
           {historial.map((h, idx) => (
             <View key={idx} style={styles.historialItem}>
-              <Text style={{ fontWeight: "bold" }}>
+              <PaperText style={{ fontWeight: "bold" }}>
                 Partida {idx + 1} – Tiempo: {formatearTiempo(h.tiempo)}
-              </Text>
+              </PaperText>
               {Object.entries(h.datos).map(([n, c]) => (
-                <Text key={n}>
+                <PaperText key={n}>
                   Número {n}: {c} veces
-                </Text>
+                </PaperText>
               ))}
             </View>
           ))}
@@ -169,7 +183,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 10,
   },
-
   botonRedondo: {
     width: 40,
     height: 40,
@@ -179,9 +192,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   numeroTexto: {
-    color: "white",
+    color: "black",
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -195,23 +207,28 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   barrasContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-around",
     width: "100%",
+    height: 150,
     marginTop: 10,
   },
-  barraFila: {
-    flexDirection: "row",
+  columna: {
     alignItems: "center",
-    marginVertical: 4,
+    justifyContent: "flex-end",
+    marginHorizontal: 4,
+    height: "100%",
   },
-  barra: {
-    height: 20,
+  barraVertical: {
+    width: 20,
     backgroundColor: "#4a90e2",
     borderRadius: 4,
-    marginHorizontal: 10,
   },
   cantidadTexto: {
-    fontSize: 16,
-    minWidth: 30,
+    marginBottom: 4,
+    fontSize: 12,
+    fontWeight: "bold",
   },
   historialItem: {
     padding: 10,
