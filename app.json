@@ -3,6 +3,10 @@
     "name": "anotador",
     "slug": "anotador",
     "version": "1.0.0",
+    "android": {
+      "package": "com.tuempresa.anotador",
+      "targetSdkVersion": 34
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
