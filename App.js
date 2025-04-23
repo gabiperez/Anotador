@@ -7,6 +7,7 @@ import { Text, Button, Provider as PaperProvider } from "react-native-paper";
 
 import Catan from "./screens/Catan";
 import Carioca from "./screens/Carioca";
+import AddPlayers from "./screens/AddPlayers";
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,7 @@ export default function App() {
           <Stack.Screen name="Inicio" component={HomeScreen} />
           <Stack.Screen name="Catan" component={Catan} />
           <Stack.Screen name="Carioca" component={Carioca} />
+          <Stack.Screen name="AddPlayers" component={AddPlayers} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

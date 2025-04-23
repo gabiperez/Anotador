@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import styles from "./Carioca/styles";
 import { savePlayer, getPlayers, removePlayer } from "../utils/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AddPlayers({ navigation }) {
   const [name, setName] = useState("");
@@ -109,8 +110,12 @@ export default function AddPlayers({ navigation }) {
 
       {players.length > 0 && (
         <Button
-          title="Jugar"
-          onPress={() => navigation.navigate("Game", { players })}
+        title="Jugar"
+        onPress={async () => {
+          const scope = navigation.getState().routes.find(r => r.name === "AddPlayers")?.params?.scope || "general";
+          await AsyncStorage.setItem(`@${scope}_players`, JSON.stringify(players));
+          navigation.goBack(); // vuelve a Catan
+        }}
         />
       )}
     </View>
