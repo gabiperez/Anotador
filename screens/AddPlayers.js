@@ -16,13 +16,19 @@ export default function AddPlayers({ navigation }) {
   const [name, setName] = useState("");
   const [players, setPlayers] = useState([]);
   const [savedPlayers, setSavedPlayers] = useState([]);
+  const scope = "catan"; // Fijamos el juego como Catan
 
   useEffect(() => {
     loadSavedPlayers();
   }, []);
 
+  useEffect(() => {
+    setPlayers([]); // Limpiamos jugadores anteriores
+    loadSavedPlayers();
+  }, []);
+
   const loadSavedPlayers = async () => {
-    const loaded = await getPlayers();
+    const loaded = await getPlayers(scope);
     setSavedPlayers(loaded || []);
   };
 
@@ -37,7 +43,7 @@ export default function AddPlayers({ navigation }) {
 
     const updated = [...players, nombre];
     setPlayers(updated);
-    await savePlayer(nombre);
+    await savePlayer(nombre, scope);
     setName("");
     loadSavedPlayers();
   };
@@ -56,7 +62,7 @@ export default function AddPlayers({ navigation }) {
           text: "Eliminar",
           style: "destructive",
           onPress: async () => {
-            await removePlayer(nombre);
+            await removePlayer(nombre, scope);
             loadSavedPlayers();
           },
         },
@@ -110,12 +116,11 @@ export default function AddPlayers({ navigation }) {
 
       {players.length > 0 && (
         <Button
-        title="Jugar"
-        onPress={async () => {
-          const scope = navigation.getState().routes.find(r => r.name === "AddPlayers")?.params?.scope || "general";
-          await AsyncStorage.setItem(`@${scope}_players`, JSON.stringify(players));
-          navigation.goBack(); // vuelve a Catan
-        }}
+          title="Jugar"
+          onPress={async () => {
+            await AsyncStorage.setItem(`@catan_players`, JSON.stringify(players));
+            navigation.goBack(); // vuelve a Catan
+          }}
         />
       )}
     </View>

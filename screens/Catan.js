@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
+  Text,
   ScrollView,
   Alert,
   StyleSheet,
@@ -16,8 +17,13 @@ import {
   RadioButton,
   List,
 } from "react-native-paper";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+
+import { 
+  useNavigation,
+  useFocusEffect,
+ } from "@react-navigation/native";
 
 const PLAYERS_Catan_KEY = "@catan_players";
 const CATAN_WINNERS_KEY = "@catan_winners";
@@ -48,6 +54,19 @@ const Catan = () => {
   
     return () => clearInterval(interval);
   }, [inicio, partidaActiva, pausado]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadPlayers = async () => {
+        const data = await AsyncStorage.getItem("@catan_players");
+        if (data) {
+          setPlayers(JSON.parse(data));
+        }
+      };
+  
+      loadPlayers();
+    }, [])
+  );
 
   useEffect(() => {
     const loadPlayers = async () => {
@@ -164,20 +183,20 @@ const Catan = () => {
   />
 </View>
 
-          <View style={styles.botonera}>
-            {numeros.map((numero) => (
-              <View key={numero} style={styles.botonContenedor}>
-                <IconButton
-                  icon={`numeric-${numero}-circle`}
-                  size={40}
-                  onPress={() => incrementar(numero)}
-                  containerColor="#4682B4"
-                  iconColor="white"
-                />
-                <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
-              </View>
-            ))}
-          </View>
+<View style={styles.botonera}>
+  {numeros.map((numero) => (
+    <View key={numero} style={styles.botonContenedor}>
+      {/* Botón TouchableOpacity */}
+      <TouchableOpacity
+        style={styles.iconoCirculo}
+        onPress={() => incrementar(numero)}  // Asumiendo que tienes una función incrementar
+      >
+        <Text style={styles.iconoTexto}>{numero}</Text>  {/* Mostramos el número dentro del círculo */}
+      </TouchableOpacity>
+      <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
+    </View>
+  ))}
+</View>
 
           <PaperText style={styles.subtitulo}>📊 Estadísticas actuales</PaperText>
           <View style={styles.barrasContainer}>
@@ -266,6 +285,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
   },
+
   botonContenedor: {
     width: 80,
     height: 100,
@@ -273,6 +293,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
+  iconoCirculo: {
+    backgroundColor: "#4682B4", // Color del círculo
+    borderRadius: 50, // Hace el círculo
+    width: 60,  // Tamaño del círculo
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  iconoTexto: {
+    color: "white",
+    fontSize: 20, // Tamaño del número
+    fontWeight: "bold",
+  },
+  
+  iconoCirculo: {
+    backgroundColor: "#4682B4", // Color del círculo
+    borderRadius: 50, // Para hacerlo circular
+    width: 60,  // Tamaño del círculo
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  
+  iconoTexto: {
+    color: "white",
+    fontSize: 20, // Tamaño del número
+    fontWeight: "bold",
+  },
+
   contador: {
     marginTop: 5,
     fontSize: 16,

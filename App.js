@@ -24,13 +24,7 @@ function HomeScreen({ navigation }) {
         Catan
       </Button>
 
-      <Button
-        mode="contained"
-        onPress={() => navigation.navigate("Carioca")}
-        style={styles.button}
-      >
-        Carioca
-      </Button>
+      
     </View>
   );
 }

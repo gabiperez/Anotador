@@ -10,10 +10,19 @@ export default function Carioca() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Setup"
-        component={AddPlayers}
-        options={{ title: "Jugadores" }}
-      />
+  name="Setup"
+  options={{ title: "Jugadores" }}
+>
+  {(props) => (
+    <AddPlayers
+      {...props}
+      scope="carioca"
+      onFinish={(players) =>
+        props.navigation.navigate("Game", { players, scope: "carioca" })
+      }
+    />
+  )}
+</Stack.Screen>
       <Stack.Screen
         name="Game"
         component={GameScreen}
