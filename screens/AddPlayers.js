@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   TextInput,
   FlatList,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from "react-native";
-import styles from "./Carioca/styles";
+//import styles from "./Carioca/styles";
 import { savePlayer, getPlayers, removePlayer } from "../utils/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PaperButton, Button } from "react-native-paper";
 
 export default function AddPlayers({ navigation }) {
   const [name, setName] = useState("");
@@ -31,6 +32,10 @@ export default function AddPlayers({ navigation }) {
     const loaded = await getPlayers(scope);
     setSavedPlayers(loaded || []);
   };
+
+  const sortedPlayers = [...savedPlayers].sort((a, b) =>
+    a.localeCompare(b, "es", { sensitivity: "base" })
+  );
 
   const addPlayer = async (playerName) => {
     const nombre = playerName.trim();
@@ -94,7 +99,13 @@ export default function AddPlayers({ navigation }) {
         onChangeText={setName}
       />
 
-      <Button title="Agregar" onPress={() => addPlayer(name)} />
+      <Button
+        mode="contained"
+        onPress={() => addPlayer(name)}
+        style={styles.addButton}
+      >
+        Agregar
+      </Button>
 
       <Text style={styles.subtitle}>Jugadores actuales:</Text>
       <FlatList
@@ -104,25 +115,112 @@ export default function AddPlayers({ navigation }) {
       />
 
       <Text style={styles.subtitle}>Jugadores guardados:</Text>
-      <FlatList
-        data={savedPlayers}
-        keyExtractor={(item, index) => item + index}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => addPlayer(item)}>
-            {renderJugador(item, true)}
-          </TouchableOpacity>
-        )}
-      />
+      <View style={styles.savedPlayersContainer}>
+        {sortedPlayers.map((player) => (
+          <Button
+            key={player}
+            mode="contained"
+            style={styles.playerButton}
+            labelStyle={styles.playerButtonLabel}
+            onPress={() => addPlayer(player)}
+            onLongPress={() => {
+              Alert.alert(
+                "Eliminar jugador guardado",
+                `¿Eliminar a "${player}" de los guardados?`,
+                [
+                  { text: "Cancelar", style: "cancel" },
+                  {
+                    text: "Eliminar",
+                    style: "destructive",
+                    onPress: async () => {
+                      await removePlayer(player, scope);
+                      loadSavedPlayers();
+                    },
+                  },
+                ]
+              );
+            }}
+            compact
+          >
+            {player}
+          </Button>
+        ))}
+      </View>
 
       {players.length > 0 && (
         <Button
-          title="Jugar"
+          mode="contained"
           onPress={async () => {
-            await AsyncStorage.setItem(`@catan_players`, JSON.stringify(players));
-            navigation.goBack(); // vuelve a Catan
+            await AsyncStorage.setItem(
+              `@catan_players`,
+              JSON.stringify(players)
+            );
+            navigation.goBack();
           }}
-        />
+          style={styles.jugarButton}
+          labelStyle={styles.jugarButtonLabel}
+        >
+          Jugar
+        </Button>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  subtitle: {
+    fontSize: 18,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  savedPlayersContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  playerButton: {
+    margin: 4,
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+  },
+  playerButtonLabel: {
+    fontSize: 14,
+  },
+  playerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 4,
+  },
+  player: {
+    fontSize: 16,
+    flex: 1,
+  },
+  deleteButton: {
+    fontSize: 16,
+    color: "red",
+    paddingLeft: 8,
+  },
+  addButton: {
+    marginTop: 10,
+    marginBottom: 20,
+    alignSelf: "center",
+  },
+});
