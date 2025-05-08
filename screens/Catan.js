@@ -20,13 +20,12 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { 
-  useNavigation,
-  useFocusEffect,
- } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 const PLAYERS_Catan_KEY = "@catan_players";
 const CATAN_WINNERS_KEY = "@catan_winners";
+
+const MAX_BAR_HEIGHT = 100; // altura máxima en px
 
 const Catan = () => {
   const navigation = useNavigation();
@@ -44,14 +43,15 @@ const Catan = () => {
   const [winnerDialogVisible, setWinnerDialogVisible] = useState(false);
   const [selectedWinner, setSelectedWinner] = useState("");
   const [pausado, setPausado] = useState(false);
+  const cantidadMax = Math.max(...Object.values(conteo));
 
   useEffect(() => {
     if (!partidaActiva || pausado) return;
-  
+
     const interval = setInterval(() => {
       setTiempo(Date.now() - inicio);
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [inicio, partidaActiva, pausado]);
 
@@ -63,7 +63,7 @@ const Catan = () => {
           setPlayers(JSON.parse(data));
         }
       };
-  
+
       loadPlayers();
     }, [])
   );
@@ -94,7 +94,11 @@ const Catan = () => {
       .filter(([_, wins]) => wins > 0)
       .sort((a, b) => b[1] - a[1]);
 
-    Alert.alert("🏆 Ganadores", lista.map(([name, wins]) => `${name}: ${wins} victoria(s)`).join("\n") || "No hay ganadores aún.");
+    Alert.alert(
+      "🏆 Ganadores",
+      lista.map(([name, wins]) => `${name}: ${wins} victoria(s)`).join("\n") ||
+        "No hay ganadores aún."
+    );
   };
 
   const finalizarPartida = () => {
@@ -112,7 +116,10 @@ const Catan = () => {
   const confirmarGanador = () => {
     if (selectedWinner) {
       guardarGanador(selectedWinner);
-      setHistorial([...historial, { datos: conteo, tiempo, ganador: selectedWinner }]);
+      setHistorial([
+        ...historial,
+        { datos: conteo, tiempo, ganador: selectedWinner },
+      ]);
       setConteo(inicializarConteo());
       setInicio(Date.now());
       setTiempo(0);
@@ -124,7 +131,9 @@ const Catan = () => {
 
   const formatearTiempo = (ms) => {
     const totalSeg = Math.floor(ms / 1000);
-    const min = Math.floor(totalSeg / 60).toString().padStart(2, "0");
+    const min = Math.floor(totalSeg / 60)
+      .toString()
+      .padStart(2, "0");
     const seg = (totalSeg % 60).toString().padStart(2, "0");
     return `${min}:${seg}`;
   };
@@ -152,7 +161,9 @@ const Catan = () => {
           <Button
             mode="outlined"
             icon="account-plus"
-            onPress={() => navigation.navigate("AddPlayers", { scope: "catan" })}
+            onPress={() =>
+              navigation.navigate("AddPlayers", { scope: "catan" })
+            }
             style={{ marginBottom: 10 }}
           >
             Agregar jugadores
@@ -172,43 +183,49 @@ const Catan = () => {
       {partidaActiva && (
         <>
           <View style={styles.tiempoContainer}>
-  <PaperText style={styles.tiempo}>
-    ⏱️ Tiempo: {formatearTiempo(tiempo)}
-  </PaperText>
-  <IconButton
-    icon={pausado ? "play" : "pause"}
-    size={24}
-    onPress={() => setPausado(!pausado)}
-    style={{ marginLeft: 10 }}
-  />
-</View>
+            <PaperText style={styles.tiempo}>
+              ⏱️ Tiempo: {formatearTiempo(tiempo)}
+            </PaperText>
+            <IconButton
+              icon={pausado ? "play" : "pause"}
+              size={24}
+              onPress={() => setPausado(!pausado)}
+              style={{ marginLeft: 10 }}
+            />
+          </View>
 
-<View style={styles.botonera}>
-  {numeros.map((numero) => (
-    <View key={numero} style={styles.botonContenedor}>
-      {/* Botón TouchableOpacity */}
-      <TouchableOpacity
-        style={styles.iconoCirculo}
-        onPress={() => incrementar(numero)}  // Asumiendo que tienes una función incrementar
-      >
-        <Text style={styles.iconoTexto}>{numero}</Text>  {/* Mostramos el número dentro del círculo */}
-      </TouchableOpacity>
-      <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
-    </View>
-  ))}
-</View>
-
-          <PaperText style={styles.subtitulo}>📊 Estadísticas actuales</PaperText>
-          <View style={styles.barrasContainer}>
-            {Object.entries(conteo).map(([numero, cantidad]) => (
-              <View key={numero} style={styles.columna}>
-                <PaperText style={styles.cantidadTexto}>{cantidad}</PaperText>
-                <View
-                  style={[styles.barraVertical, { height: cantidad * 10 }]}
-                />
-                <PaperText style={styles.numeroTexto}>{numero}</PaperText>
+          <View style={styles.botonera}>
+            {numeros.map((numero) => (
+              <View key={numero} style={styles.botonContenedor}>
+                {/* Botón TouchableOpacity */}
+                <TouchableOpacity
+                  style={styles.iconoCirculo}
+                  onPress={() => incrementar(numero)} // Asumiendo que tienes una función incrementar
+                >
+                  <Text style={styles.iconoTexto}>{numero}</Text>{" "}
+                  {/* Mostramos el número dentro del círculo */}
+                </TouchableOpacity>
+                <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
               </View>
             ))}
+          </View>
+
+          <PaperText style={styles.subtitulo}>
+            📊 Estadísticas actuales
+          </PaperText>
+
+          <View style={styles.barrasContainer}>
+            {Object.entries(conteo).map(([numero, cantidad]) => {
+              const altura =
+                cantidadMax > 0 ? (cantidad / cantidadMax) * MAX_BAR_HEIGHT : 0;
+              return (
+                <View key={numero} style={styles.columna}>
+                  <PaperText style={styles.cantidadTexto}>{cantidad}</PaperText>
+                  <View style={[styles.barraVertical, { height: altura }]} />
+                  <PaperText style={styles.numeroTexto}>{numero}</PaperText>
+                </View>
+              );
+            })}
           </View>
 
           <Button
@@ -225,11 +242,14 @@ const Catan = () => {
 
       {historial.length > 0 && (
         <>
-          <PaperText style={styles.subtitulo}>📁 Historial de partidas</PaperText>
+          <PaperText style={styles.subtitulo}>
+            📁 Historial de partidas
+          </PaperText>
           {historial.map((h, idx) => (
             <View key={idx} style={styles.historialItem}>
               <PaperText style={{ fontWeight: "bold" }}>
-                Partida {idx + 1} – Tiempo: {formatearTiempo(h.tiempo)} – Ganador: {h.ganador || "N/A"}
+                Partida {idx + 1} – Tiempo: {formatearTiempo(h.tiempo)} –
+                Ganador: {h.ganador || "N/A"}
               </PaperText>
               {Object.entries(h.datos).map(([n, c]) => (
                 <PaperText key={n}>
@@ -242,7 +262,10 @@ const Catan = () => {
       )}
 
       <Portal>
-        <Dialog visible={winnerDialogVisible} onDismiss={() => setWinnerDialogVisible(false)}>
+        <Dialog
+          visible={winnerDialogVisible}
+          onDismiss={() => setWinnerDialogVisible(false)}
+        >
           <Dialog.Title>🏆 ¿Quién ganó?</Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
@@ -255,7 +278,9 @@ const Catan = () => {
             </RadioButton.Group>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setWinnerDialogVisible(false)}>Cancelar</Button>
+            <Button onPress={() => setWinnerDialogVisible(false)}>
+              Cancelar
+            </Button>
             <Button onPress={confirmarGanador}>Confirmar</Button>
           </Dialog.Actions>
         </Dialog>
@@ -297,7 +322,7 @@ const styles = StyleSheet.create({
   iconoCirculo: {
     backgroundColor: "#4682B4", // Color del círculo
     borderRadius: 50, // Hace el círculo
-    width: 60,  // Tamaño del círculo
+    width: 60, // Tamaño del círculo
     height: 60,
     justifyContent: "center",
     alignItems: "center",
@@ -308,16 +333,16 @@ const styles = StyleSheet.create({
     fontSize: 20, // Tamaño del número
     fontWeight: "bold",
   },
-  
+
   iconoCirculo: {
     backgroundColor: "#4682B4", // Color del círculo
     borderRadius: 50, // Para hacerlo circular
-    width: 60,  // Tamaño del círculo
+    width: 60, // Tamaño del círculo
     height: 60,
     justifyContent: "center",
     alignItems: "center",
   },
-  
+
   iconoTexto: {
     color: "white",
     fontSize: 20, // Tamaño del número
