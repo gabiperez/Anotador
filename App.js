@@ -14,17 +14,15 @@ const Stack = createNativeStackNavigator();
 function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎮 Anotador de Juegos</Text>
+      <Text style={styles.title}>⚔️Estadísticas Catan⚔️</Text>
 
       <Button
         mode="contained"
         onPress={() => navigation.navigate("Catan")}
         style={styles.button}
       >
-        Catan
+        Comenzar
       </Button>
-
-      
     </View>
   );
 }

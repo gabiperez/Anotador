@@ -147,6 +147,9 @@ export default function AddPlayers({ navigation }) {
         ))}
       </View>
 
+      <Text style={styles.reference}>
+        *Para eliminar un jugador guardado mante apretado
+      </Text>
       {players.length > 0 && (
         <Button
           mode="contained"
@@ -189,6 +192,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     marginTop: 20,
+    marginBottom: 8,
+  },
+
+  reference: {
+    fontSize: 11,
+    marginTop: 8,
     marginBottom: 8,
   },
   savedPlayersContainer: {

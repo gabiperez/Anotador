@@ -44,6 +44,8 @@ const Catan = () => {
   const [selectedWinner, setSelectedWinner] = useState("");
   const [pausado, setPausado] = useState(false);
   const cantidadMax = Math.max(...Object.values(conteo));
+  const [jugadores, setJugadores] = useState([]);
+  const [robos, setRobos] = useState({});
 
   useEffect(() => {
     if (!partidaActiva || pausado) return;
@@ -55,12 +57,42 @@ const Catan = () => {
     return () => clearInterval(interval);
   }, [inicio, partidaActiva, pausado]);
 
+  useEffect(() => {
+    const cargarJugadores = async () => {
+      const data = await AsyncStorage.getItem("@catan_players");
+      const lista = JSON.parse(data) || [];
+      setJugadores(lista);
+      // Inicializa los robos
+      const robosIniciales = {};
+      lista.forEach((j) => {
+        robosIniciales[j] = 0;
+      });
+      setRobos(robosIniciales);
+    };
+    cargarJugadores();
+  }, []);
+
+  const incrementarRobo = (nombre) => {
+    setRobos((prev) => ({
+      ...prev,
+      [nombre]: prev[nombre] + 1,
+    }));
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       const loadPlayers = async () => {
         const data = await AsyncStorage.getItem("@catan_players");
         if (data) {
-          setPlayers(JSON.parse(data));
+          const parsed = JSON.parse(data);
+          setPlayers(parsed);
+
+          // Inicializar los robos con los jugadores cargados
+          const robosIniciales = parsed.reduce((acc, nombre) => {
+            acc[nombre] = 0;
+            return acc;
+          }, {});
+          setRobos(robosIniciales);
         }
       };
 
@@ -141,7 +173,10 @@ const Catan = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <PaperText variant="titleLarge" style={styles.titulo}>
-        🎲 Catan - Contador de dados
+        🎲 Catan
+      </PaperText>
+      <PaperText variant="titleLarge" style={styles.titulo}>
+        Partida en curso
       </PaperText>
 
       {!partidaActiva && (
@@ -186,12 +221,6 @@ const Catan = () => {
             <PaperText style={styles.tiempo}>
               ⏱️ Tiempo: {formatearTiempo(tiempo)}
             </PaperText>
-            <IconButton
-              icon={pausado ? "play" : "pause"}
-              size={24}
-              onPress={() => setPausado(!pausado)}
-              style={{ marginLeft: 10 }}
-            />
           </View>
 
           <View style={styles.botonera}>
@@ -200,13 +229,29 @@ const Catan = () => {
                 {/* Botón TouchableOpacity */}
                 <TouchableOpacity
                   style={styles.iconoCirculo}
-                  onPress={() => incrementar(numero)} // Asumiendo que tienes una función incrementar
+                  onPress={() => incrementar(numero)}
                 >
-                  <Text style={styles.iconoTexto}>{numero}</Text>{" "}
+                  <Text style={styles.iconoTexto}>{numero}</Text>
+                  {""}
                   {/* Mostramos el número dentro del círculo */}
                 </TouchableOpacity>
                 <PaperText style={styles.contador}>{conteo[numero]}</PaperText>
               </View>
+            ))}
+          </View>
+          <PaperText style={styles.subtitulo}>🕵️‍♂️Jugadores Robados</PaperText>
+          <View style={styles.robosContainer}>
+            {jugadores.map((nombre) => (
+              <Button
+                key={nombre}
+                mode="contained"
+                style={styles.roboButton}
+                labelStyle={styles.roboLabel}
+                onPress={() => incrementarRobo(nombre)}
+                compact
+              >
+                {nombre} {robos[nombre] > 0 ? `(${robos[nombre]})` : ""}
+              </Button>
             ))}
           </View>
 
@@ -251,11 +296,23 @@ const Catan = () => {
                 Partida {idx + 1} – Tiempo: {formatearTiempo(h.tiempo)} –
                 Ganador: {h.ganador || "N/A"}
               </PaperText>
+
+              {/* Números lanzados */}
               {Object.entries(h.datos).map(([n, c]) => (
                 <PaperText key={n}>
                   Número {n}: {c} veces
                 </PaperText>
               ))}
+
+              {/* Robos por jugador */}
+              {h.robos && Object.keys(h.robos).length > 0 && (
+                <PaperText style={{ marginTop: 6 }}>
+                  🕵️‍♂️ Robos:{""}
+                  {Object.entries(h.robos)
+                    .map(([nombre, cantidad]) => `${nombre} (${cantidad})`)
+                    .join(", ")}
+                </PaperText>
+              )}
             </View>
           ))}
         </>
@@ -302,17 +359,18 @@ const styles = StyleSheet.create({
   },
   tiempo: {
     fontSize: 18,
-    marginBottom: 10,
+    marginBottom: 5,
     textAlign: "center",
   },
   botonera: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
+    marginBottom: 2,
   },
 
   botonContenedor: {
-    width: 80,
+    width: 50,
     height: 100,
     margin: 10,
     alignItems: "center",
@@ -355,7 +413,7 @@ const styles = StyleSheet.create({
   },
   subtitulo: {
     fontSize: 20,
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 5,
   },
   barrasContainer: {
@@ -397,6 +455,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+  },
+  subtitulo: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  robosContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "center",
+  },
+  roboButton: {
+    backgroundColor: "#4682B4",
+    margin: 4,
+    borderRadius: 20,
+  },
+  roboLabel: {
+    color: "white",
+    textTransform: "none",
   },
 });
 
