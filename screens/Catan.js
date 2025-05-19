@@ -185,6 +185,10 @@ const Catan = () => {
             mode="contained"
             icon="play"
             onPress={() => {
+              if (players.length === 0) {
+                Alert.alert("Agrega jugadores antes de comenzar");
+                return;
+              }
               setInicio(Date.now());
               setPartidaActiva(true);
             }}
