@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Catan Stats",
-    "slug": "catan-stats",
+    "slug": "anotador",
     "version": "1.0.0",
     "icon": "./assets/icono.png",
     "android": {
