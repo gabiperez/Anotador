@@ -15,7 +15,6 @@ function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>⚔️Estadísticas Catan⚔️</Text>
-
       <Button
         mode="contained"
         onPress={() => navigation.navigate("Catan")}
@@ -23,6 +22,18 @@ function HomeScreen({ navigation }) {
       >
         Comenzar
       </Button>
+
+      <View style={styles.creditoFooter}>
+        <Text style={{ fontSize: 14 }}>
+          Desarrollado por{" "}
+          <Text
+            style={{ color: "#4682B4", textDecorationLine: "underline" }}
+            onPress={() => Linking.openURL("https://www.zer-p.com")}
+          >
+            Zerp
+          </Text>
+        </Text>
+      </View>
     </View>
   );
 }
@@ -57,5 +68,14 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 10,
+  },
+  creditoFooter: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    marginTop: 250,
+    marginBottom: 10,
   },
 });

@@ -112,6 +112,16 @@ const Catan = () => {
     setConteo((prev) => ({ ...prev, [numero]: prev[numero] + 1 }));
   };
 
+  useEffect(() => {
+    setJugadores(players);
+    // Inicializa los robos para los nuevos jugadores
+    const robosIniciales = {};
+    players.forEach((j) => {
+      robosIniciales[j] = 0;
+    });
+    setRobos(robosIniciales);
+  }, [players]);
+
   const guardarGanador = async (nombre) => {
     const data = await AsyncStorage.getItem(CATAN_WINNERS_KEY);
     const winners = data ? JSON.parse(data) : {};
@@ -292,7 +302,7 @@ const Catan = () => {
       {historial.length > 0 && (
         <>
           <PaperText style={styles.subtitulo}>
-            📁 Historial de partidas
+            📁 Resultado de la Partida
           </PaperText>
           {historial.map((h, idx) => (
             <View key={idx} style={styles.historialItem}>
