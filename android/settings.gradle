@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'anotador'
+rootProject.name = 'Catan Stats'
 
 dependencyResolutionManagement {
   versionCatalogs {

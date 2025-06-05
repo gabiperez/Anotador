@@ -1,4 +1,4 @@
-package com.tuempresa.anotador
+package com.gusanpe.catanstats
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

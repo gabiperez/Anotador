@@ -1,4 +1,4 @@
-package com.tuempresa.anotador
+package com.gusanpe.catanstats
 
 import android.app.Application
 import android.content.res.Configuration
