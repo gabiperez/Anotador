@@ -94,7 +94,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.catanstats"
+    namespace "com.gusanpe.catanstats"
     defaultConfig {
         applicationId 'com.gusanpe.catanstats'
         minSdkVersion rootProject.ext.minSdkVersion
