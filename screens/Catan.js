@@ -113,6 +113,27 @@ const Catan = () => {
   };
 
   useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault(); // Cancela la acción por defecto (volver atrás)
+
+      Alert.alert(
+        "¿Salir sin guardar?",
+        "Se perderán los datos de la partida actual.",
+        [
+          { text: "Cancelar", style: "cancel", onPress: () => {} },
+          {
+            text: "Salir",
+            style: "destructive",
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
     setJugadores(players);
     // Inicializa los robos para los nuevos jugadores
     const robosIniciales = {};
@@ -182,9 +203,11 @@ const Catan = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/*
       <PaperText variant="titleLarge" style={styles.titulo}>
         🎲 Catan
       </PaperText>
+      */}
       <PaperText variant="titleLarge" style={styles.titulo}>
         Partida en curso
       </PaperText>
@@ -380,12 +403,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginBottom: 2,
+    marginBottom: 0,
   },
 
   botonContenedor: {
     width: 50,
-    height: 100,
+    height: 70,
     margin: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -406,23 +429,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  iconoCirculo: {
-    backgroundColor: "#4682B4", // Color del círculo
-    borderRadius: 50, // Para hacerlo circular
-    width: 60, // Tamaño del círculo
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  iconoTexto: {
-    color: "white",
-    fontSize: 20, // Tamaño del número
-    fontWeight: "bold",
-  },
-
   contador: {
-    marginTop: 5,
+    marginTop: 2,
     fontSize: 16,
   },
   subtitulo: {
