@@ -143,6 +143,27 @@ const Catan = () => {
     setRobos(robosIniciales);
   }, [players]);
 
+  /////////////////////////////////////////////////////////////////////////
+  const calcularRondas = (conteo, numJugadores) => {
+    if (numJugadores === 0) {
+      return 0;
+    }
+    // 1. Calcular el total de lanzamientos realizados
+    const totalLanzamientos = Object.values(conteo).reduce(
+      (suma, cantidad) => suma + cantidad,
+      0
+    );
+    const cantidadDeNumeros = 11;
+    // 3. Calcular el número de lanzamientos por ronda
+    const lanzamientosPorRonda = cantidadDeNumeros * numJugadores;
+    // 4. Calcular el número de rondas completadas
+    const rondasCompletadas = Math.floor(
+      totalLanzamientos / lanzamientosPorRonda
+    );
+    return rondasCompletadas;
+  };
+  /////////////////////////////////////////////////////////////////////////
+
   const guardarGanador = async (nombre) => {
     const data = await AsyncStorage.getItem(CATAN_WINNERS_KEY);
     const winners = data ? JSON.parse(data) : {};
@@ -194,10 +215,18 @@ const Catan = () => {
 
   const formatearTiempo = (ms) => {
     const totalSeg = Math.floor(ms / 1000);
-    const min = Math.floor(totalSeg / 60)
+    const horas = Math.floor(totalSeg / 3600);
+    const min = Math.floor((totalSeg % 3600) / 60)
       .toString()
       .padStart(2, "0");
+
     const seg = (totalSeg % 60).toString().padStart(2, "0");
+    // Si hay horas, incluye el formato HH:MM:SS
+    if (horas > 0) {
+      const hrs = horas.toString().padStart(2, "0");
+      return `${hrs}:${min}:${seg}`;
+    }
+    // Si no hay horas (menos de 60 minutos), mantiene el formato MM:SS
     return `${min}:${seg}`;
   };
 
@@ -224,6 +253,14 @@ const Catan = () => {
               }
               setInicio(Date.now());
               setPartidaActiva(true);
+
+              ////////////////////Reseteo de Robos/////////////////////////
+              const robosIniciales = players.reduce((acc, nombre) => {
+                acc[nombre] = 0;
+                return acc;
+              }, {});
+              setRobos(robosIniciales);
+              /////////////////////////////////////////////////////////////
             }}
             style={{ marginBottom: 10 }}
           >
@@ -257,6 +294,9 @@ const Catan = () => {
           <View style={styles.tiempoContainer}>
             <PaperText style={styles.tiempo}>
               ⏱️ Tiempo: {formatearTiempo(tiempo)}
+            </PaperText>
+            <PaperText style={styles.tiempo}>
+              🔁 **Ronda: {rondasActuales}**
             </PaperText>
           </View>
 
