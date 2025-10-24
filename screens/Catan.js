@@ -44,6 +44,7 @@ const Catan = () => {
   const [selectedWinner, setSelectedWinner] = useState("");
   const [pausado, setPausado] = useState(false);
   const cantidadMax = Math.max(...Object.values(conteo));
+  const [rondasActuales, setRondasActuales] = useState(0);
   const [jugadores, setJugadores] = useState([]);
   const [robos, setRobos] = useState({});
 
@@ -56,6 +57,16 @@ const Catan = () => {
 
     return () => clearInterval(interval);
   }, [inicio, partidaActiva, pausado]);
+
+  useEffect(() => {
+  const numJugadores = players.length;
+  if (partidaActiva && numJugadores > 0) {
+    const rondas = calcularRondas(conteo, numJugadores);
+    setRondasActuales(rondas);
+  } else {
+    setRondasActuales(0);
+  }
+  }, [conteo, players.length, partidaActiva]);
 
   useEffect(() => {
     const cargarJugadores = async () => {
@@ -78,6 +89,15 @@ const Catan = () => {
       [nombre]: prev[nombre] + 1,
     }));
   };
+
+  useEffect(() => {
+  const numJugadores = players.length;
+  // Solo actualiza si hay jugadores y la partida está activa
+  if (partidaActiva && numJugadores > 0) {
+    const rondas = calcularRondas(conteo, numJugadores);
+    setRondasActuales(rondas);
+  }
+}, [conteo, players.length, partidaActiva]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -145,23 +165,24 @@ const Catan = () => {
 
   /////////////////////////////////////////////////////////////////////////
   const calcularRondas = (conteo, numJugadores) => {
-    if (numJugadores === 0) {
-      return 0;
-    }
-    // 1. Calcular el total de lanzamientos realizados
-    const totalLanzamientos = Object.values(conteo).reduce(
-      (suma, cantidad) => suma + cantidad,
-      0
-    );
-    const cantidadDeNumeros = 11;
-    // 3. Calcular el número de lanzamientos por ronda
-    const lanzamientosPorRonda = cantidadDeNumeros * numJugadores;
-    // 4. Calcular el número de rondas completadas
-    const rondasCompletadas = Math.floor(
-      totalLanzamientos / lanzamientosPorRonda
-    );
-    return rondasCompletadas;
-  };
+  if (numJugadores === 0) {
+    return 0;
+  }
+  // 1. Calcular el total de lanzamientos realizados 
+  const totalLanzamientos = Object.values(conteo).reduce(
+    (suma, cantidad) => suma + cantidad,
+    0
+  );
+  
+  // 2. Un lanzamiento por jugador por ronda.
+  const lanzamientosPorRonda = numJugadores; 
+  
+  // 3. Calcular el número de rondas completadas
+  const rondasCompletadas = Math.floor(
+    totalLanzamientos / lanzamientosPorRonda
+  );
+  return rondasCompletadas;
+};
   /////////////////////////////////////////////////////////////////////////
 
   const guardarGanador = async (nombre) => {
@@ -296,7 +317,7 @@ const Catan = () => {
               ⏱️ Tiempo: {formatearTiempo(tiempo)}
             </PaperText>
             <PaperText style={styles.tiempo}>
-              🔁 **Ronda: {rondasActuales}**
+              - **Ronda: {rondasActuales}**
             </PaperText>
           </View>
 
